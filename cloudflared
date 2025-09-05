@@ -1,0 +1,28 @@
+# 1️⃣ تنزيل cloudflared
+curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+chmod +x cloudflared
+sudo mv cloudflared /usr/local/bin/
+cloudflared --version
+
+# 2️⃣ تسجيل الدخول في Cloudflare
+cloudflared tunnel login
+
+# 3️⃣ إنشاء التانل
+cloudflared tunnel create denut-tunnel
+
+# 4️⃣ تجهيز مجلد الكونفيج
+mkdir -p ~/.cloudflared
+
+# 5️⃣ إنشاء ملف الكونفيج
+nano ~/.cloudflared/config.yml
+# والصق فيه:
+# tunnel: denut-tunnel
+# credentials-file: /root/.cloudflared/<tunnel-uuid>.json
+# ingress:
+#   - hostname: denutsmp.qzz.io
+#     service: http://localhost:80
+#   - service: http_status:404
+# origincert: /root/.cloudflared/cert.pem
+
+# 6️⃣ تشغيل التانل
+cloudflared tunnel run denut-tunnel
