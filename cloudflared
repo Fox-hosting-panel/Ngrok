@@ -1,28 +1,41 @@
-# 1️⃣ تنزيل cloudflared
+#!/bin/bash
+# Cloudflared Auto Setup Script
+# إعداد Cloudflared Tunnel تلقائي للدومين والسيرفر
+
+# المتغيرات (عدلهم على حسب حالتك)
+TUNNEL_NAME="denut-tunnel"
+DOMAIN="denutsmp.qzz.io"
+SERVICE_PORT="80"
+
+echo "➡️ تحميل cloudflared..."
 curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
 chmod +x cloudflared
 sudo mv cloudflared /usr/local/bin/
 cloudflared --version
 
-# 2️⃣ تسجيل الدخول في Cloudflare
+echo "➡️ تسجيل الدخول في Cloudflare..."
 cloudflared tunnel login
 
-# 3️⃣ إنشاء التانل
-cloudflared tunnel create denut-tunnel
+echo "➡️ إنشاء Tunnel..."
+cloudflared tunnel create $TUNNEL_NAME
 
-# 4️⃣ تجهيز مجلد الكونفيج
+# الحصول على الـ Tunnel ID
+TUNNEL_ID=$(cat ~/.cloudflared/*.json | grep -o '"TunnelID":"[^"]*' | cut -d'"' -f4)
+
+echo "➡️ إنشاء ملف config.yml..."
 mkdir -p ~/.cloudflared
+cat > ~/.cloudflared/config.yml <<EOL
+tunnel: $TUNNEL_ID
+credentials-file: /home/codespace/.cloudflared/$TUNNEL_ID.json
 
-# 5️⃣ إنشاء ملف الكونفيج
-nano ~/.cloudflared/config.yml
-# والصق فيه:
-# tunnel: denut-tunnel
-# credentials-file: /root/.cloudflared/<tunnel-uuid>.json
-# ingress:
-#   - hostname: denutsmp.qzz.io
-#     service: http://localhost:80
-#   - service: http_status:404
-# origincert: /root/.cloudflared/cert.pem
+ingress:
+  - hostname: $DOMAIN
+    service: http://localhost:$SERVICE_PORT
+  - service: http_status:404
+EOL
 
-# 6️⃣ تشغيل التانل
-cloudflared tunnel run denut-tunnel
+echo "➡️ ربط الدومين بالـ tunnel..."
+cloudflared tunnel route dns $TUNNEL_NAME $DOMAIN
+
+echo "✅ خلصنا! شغل السيرفر باستخدام:"
+echo "cloudflared tunnel run $TUNNEL_NAME"
