@@ -1,21 +1,13 @@
-#!/bin/bash
-set -e
+sudo bash -c 'cat > /etc/apt/sources.list << "EOF"
+deb http://packages.linuxmint.com wilma main upstream import backport 
 
-echo "🔄 تحديث النظام وإصلاح المشاكل..."
-sudo apt update --fix-missing
-sudo apt --fix-broken install -y
+deb http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu noble-updates main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu noble-backports main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse
+EOF
 
-echo "⬇️ تثبيت الاعتماديات الأساسية..."
-sudo apt install -y colord xserver-xorg software-properties-common
-
-echo "🖥️ محاولة تثبيت Cinnamon من المستودعات الرسمية..."
-if sudo apt install -y cinnamon; then
-    echo "✅ تم تثبيت Cinnamon من المستودعات الرسمية."
-else
-    echo "⚠️ المستودعات الرسمية ما فيهاش Cinnamon كامل. بنضيف PPA embrosyn..."
-    sudo add-apt-repository -y ppa:embrosyn/cinnamon
-    sudo apt update
-    sudo apt install -y cinnamon
-fi
-
-echo "🟢 كله تمام! أعد تشغيل الجهاز وجرب الدخول على Cinnamon."
+apt clean
+apt update --fix-missing -y
+apt --fix-broken install -y
+apt install -y libegl-mesa0 libgbm1
