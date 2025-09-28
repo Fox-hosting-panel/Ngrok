@@ -7,7 +7,7 @@ deb http://archive.ubuntu.com/ubuntu noble-backports main restricted universe mu
 deb http://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse
 EOF
 
-apt clean
+apt clean -y
 apt update --fix-missing -y
 apt --fix-broken install -y
 apt install -y libegl-mesa0 libgbm1
